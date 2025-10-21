@@ -7,7 +7,6 @@
 [![Privacy](https://img.shields.io/badge/Privacy-Zero%20Tracking-blue.svg)](https://8urn.me/privacy)
 [![Encryption](https://img.shields.io/badge/Encryption-AES--256%20GCM-red.svg)](https://8urn.me)
 [![Vulnerabilities](https://img.shields.io/badge/Vulnerabilities-0%20Found-brightgreen.svg)](https://8urn.me)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## 🎯 Overview
 
@@ -434,22 +433,132 @@ TLS 1.3:
 curl -I https://8urn.me | grep -E "(X-|Strict-|Content-Security)"
 ```
 
-**Implemented Security Headers:**
-- **`Strict-Transport-Security`**: `max-age=31536000; includeSubDomains`
-- **`X-Frame-Options`**: `DENY` (prevents clickjacking)
-- **`X-XSS-Protection`**: `1; mode=block` (XSS protection)
-- **`X-Content-Type-Options`**: `nosniff` (MIME type sniffing protection)
-- **`Referrer-Policy`**: `strict-origin-when-cross-origin`
-- **`Permissions-Policy`**: `camera=(), microphone=(), geolocation=()`
-- **`Content-Security-Policy`**: Comprehensive CSP preventing XSS
+**Complete Security Headers Implementation:**
 
-### Dependency Security Audit
-**Grade: A+ (Zero Vulnerabilities)**
-
-```bash
-# NPM Security Audit
-npm audit --audit-level moderate
+#### **1. X-Frame-Options: DENY**
+**Purpose**: Prevents clickjacking attacks
+**Protection**: Blocks the site from being embedded in frames/iframes
+```html
+<!-- This would be blocked -->
+<iframe src="https://8urn.me"></iframe>
 ```
+**Why it matters**: Prevents malicious sites from embedding 8urn.me in invisible frames to trick users into clicking on hidden elements.
+
+#### **2. X-XSS-Protection: 1; mode=block**
+**Purpose**: Enables browser's built-in XSS (Cross-Site Scripting) protection
+**Protection**: 
+- `1` = Enable XSS filtering
+- `mode=block` = Block the entire page if XSS is detected
+**Example Attack Blocked**:
+```javascript
+// Malicious URL that would be blocked:
+https://8urn.me/?search=<script>alert('XSS')</script>
+```
+**Why it matters**: Provides an additional layer of protection against script injection attacks.
+
+#### **3. X-Content-Type-Options: nosniff**
+**Purpose**: Prevents MIME type sniffing attacks
+**Protection**: Forces browsers to respect the declared Content-Type
+**Example Attack Blocked**:
+```javascript
+// Malicious file upload that would be blocked:
+// File: malicious.js uploaded as "image.jpg"
+// Without nosniff: Browser might execute the JS
+// With nosniff: Browser treats it as image only
+```
+**Why it matters**: Prevents browsers from misinterpreting file types and executing malicious content.
+
+#### **4. Referrer-Policy: strict-origin-when-cross-origin**
+**Purpose**: Controls what referrer information is sent with requests
+**Protection**: 
+- **Same-origin requests**: Send full URL
+- **Cross-origin HTTPS→HTTPS**: Send only origin (https://8urn.me)
+- **Cross-origin HTTPS→HTTP**: Send nothing
+**Example**:
+```javascript
+// When user clicks link from 8urn.me to external site:
+// Sent: https://8urn.me (not the full note URL)
+// Protects: Note URLs and sensitive paths
+```
+**Why it matters**: Prevents sensitive note URLs from being leaked to external sites.
+
+#### **5. Permissions-Policy: camera=(), microphone=(), geolocation=()**
+**Purpose**: Disables access to sensitive browser APIs
+**Protection**: Blocks access to:
+- **Camera**: `camera=()` (empty = denied)
+- **Microphone**: `microphone=()` (empty = denied)  
+- **Geolocation**: `geolocation=()` (empty = denied)
+**Example Attack Blocked**:
+```javascript
+// Malicious script that would be blocked:
+navigator.mediaDevices.getUserMedia({video: true}) // ❌ Blocked
+navigator.geolocation.getCurrentPosition() // ❌ Blocked
+```
+**Why it matters**: Prevents malicious scripts from accessing sensitive device features.
+
+#### **6. Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'**
+**Purpose**: Defines what resources can be loaded and from where
+**Protection Breakdown**:
+- **`default-src 'self'`**: Only allow resources from same origin
+- **`script-src 'self' 'unsafe-inline'`**: Allow scripts from same origin + inline scripts
+- **`style-src 'self' 'unsafe-inline'`**: Allow styles from same origin + inline styles
+**Example Attack Blocked**:
+```html
+<!-- This would be blocked -->
+<script src="https://evil-site.com/malicious.js"></script>
+
+<!-- This would be blocked -->
+<img src="https://tracker.com/pixel.gif">
+```
+**Why it matters**: Prevents loading of malicious external resources and reduces XSS attack surface.
+
+#### **7. Strict-Transport-Security: max-age=31536000; includeSubDomains**
+**Purpose**: Forces HTTPS connections (HSTS - HTTP Strict Transport Security)
+**Protection**:
+- **`max-age=31536000`**: Force HTTPS for 1 year (31,536,000 seconds)
+- **`includeSubDomains`**: Apply to all subdomains
+**Example Attack Blocked**:
+```javascript
+// User types: http://8urn.me
+// Browser automatically redirects to: https://8urn.me
+// Prevents: Man-in-the-middle attacks over HTTP
+```
+**Why it matters**: Prevents downgrade attacks and ensures all connections are encrypted.
+
+#### **Security Headers Protection Summary**
+| Header | Attack Vector Blocked | Protection Level |
+|--------|----------------------|------------------|
+| **X-Frame-Options** | Clickjacking | High |
+| **X-XSS-Protection** | Cross-Site Scripting | High |
+| **X-Content-Type-Options** | MIME Confusion | Medium |
+| **Referrer-Policy** | Information Leakage | High |
+| **Permissions-Policy** | Device Access Abuse | High |
+| **Content-Security-Policy** | Resource Injection | Very High |
+| **Strict-Transport-Security** | Protocol Downgrade | Very High |
+
+**Combined Protection**: These headers work together to create a comprehensive security shield, preventing multiple attack vectors while maintaining the privacy-first philosophy of 8urn.me.
+
+#### **How Security Headers Protect 8urn.me's Core Features**
+
+**Anonymous Note Creation:**
+- **CSP** prevents external tracking scripts from loading
+- **Referrer-Policy** prevents note URLs from leaking to external sites
+- **HSTS** ensures all note creation happens over encrypted connections
+
+**Self-Destructing Notes:**
+- **X-Frame-Options** prevents notes from being embedded in malicious frames
+- **X-XSS-Protection** blocks attempts to inject scripts into note content
+- **Permissions-Policy** prevents malicious scripts from accessing device features
+
+**Zero-Tracking Philosophy:**
+- **CSP** blocks all external resources (no Google Analytics, tracking pixels, etc.)
+- **Referrer-Policy** limits information leakage to external sites
+- **Permissions-Policy** blocks access to device sensors that could be used for fingerprinting
+
+**End-to-End Encryption:**
+- **HSTS** ensures encryption keys are never transmitted over unencrypted connections
+- **X-Content-Type-Options** prevents MIME confusion attacks that could compromise encryption
+- **CSP** prevents malicious scripts from intercepting encryption processes
 
 **Results:**
 - **Vulnerabilities Found**: 0 ✅
@@ -473,16 +582,10 @@ npm audit --audit-level moderate
 - **Curl**: Security header verification
 - **Manual Penetration Testing**: Code review and security analysis
 
-### Continuous Security Monitoring
-- **Automated Security Scanning**: Regular dependency audits
-- **SSL/TLS Monitoring**: Certificate and cipher suite validation
-- **Security Header Validation**: Continuous header compliance checking
-- **Vulnerability Disclosure**: Responsible disclosure process in place
-
 ### Security Reporting
 If you discover a security vulnerability, please report it responsibly:
 1. **DO NOT** create a public issue
-2. Email admin@dtrh.net with details
+2. Email security@8urn.me with details
 3. Include steps to reproduce the vulnerability
 4. Allow 90 days for response before public disclosure
 
@@ -493,6 +596,12 @@ If you discover a security vulnerability, please report it responsibly:
 - **Netlify**: Serverless hosting platform
 - **Security Community**: Ongoing security research and improvements
 
+---
+
 **Remember**: 8urn.me is designed for maximum privacy and security. Your data is encrypted client-side and never stored in plaintext. However, always use strong passphrases and be mindful of what you share.
 
 **⚠️ Disclaimer**: This service is provided "as is" without warranty. Users are responsible for their own data security practices.
+
+---
+
+**A DTRH.net Project - < admin [at] dtrh [dot] net >
