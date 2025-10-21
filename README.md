@@ -604,4 +604,4 @@ If you discover a security vulnerability, please report it responsibly:
 
 ---
 
-**A DTRH.net Project - < admin [at] dtrh [dot] net >
+**A DTRH.net Project - < admin [at] dtrh [dot] net >**
