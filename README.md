@@ -585,7 +585,7 @@ navigator.geolocation.getCurrentPosition() // ❌ Blocked
 ### Security Reporting
 If you discover a security vulnerability, please report it responsibly:
 1. **DO NOT** create a public issue
-2. Email security@8urn.me with details
+2. Email admin@dtrh.net with details
 3. Include steps to reproduce the vulnerability
 4. Allow 90 days for response before public disclosure
 
