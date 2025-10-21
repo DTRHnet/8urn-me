@@ -479,93 +479,12 @@ npm audit --audit-level moderate
 - **Security Header Validation**: Continuous header compliance checking
 - **Vulnerability Disclosure**: Responsible disclosure process in place
 
-## 🔧 Development & Deployment
-
-### Local Development
-```bash
-# Clone repository
-git clone https://github.com/your-username/8urn.me.git
-cd 8urn.me
-
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Start simple server (no Redis required)
-npm run start:simple
-```
-
-### Production Deployment
-```bash
-# Build for Netlify
-npm run build:netlify
-
-# Deploy to Netlify
-netlify deploy --prod
-```
-
-### Environment Variables
-```bash
-# Required for local development
-NODE_ENV=production
-PORT=3000
-REDIS_URL=redis://localhost:6379
-
-# Netlify environment variables
-NODE_VERSION=18
-APP_NAME=8urn.me
-APP_VERSION=1.0.0
-```
-
-## 📚 API Documentation
-
-### Create Note
-```http
-POST /api/notes
-Content-Type: application/json
-
-{
-  "encryptedContent": "base64-encoded-encrypted-content",
-  "triggerType": "read|time|both",
-  "triggerValue": {
-    "reads": 1,
-    "time": 3600
-  },
-  "passphraseHash": "optional-passphrase-hash"
-}
-```
-
-### Retrieve Note
-```http
-GET /api/notes/{noteId}
-```
-
-### Delete Note
-```http
-DELETE /api/notes/{noteId}
-```
-
-### Health Check
-```http
-GET /api/health
-```
-
-## 🤝 Contributing
-
-We welcome contributions to improve 8urn.me's security and functionality. Please read our [Contributing Guidelines](CONTRIBUTING.md) before submitting pull requests.
-
 ### Security Reporting
 If you discover a security vulnerability, please report it responsibly:
 1. **DO NOT** create a public issue
-2. Email security@8urn.me with details
+2. Email admin@dtrh.net with details
 3. Include steps to reproduce the vulnerability
 4. Allow 90 days for response before public disclosure
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
@@ -573,15 +492,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Web Crypto API**: Modern cryptographic standards
 - **Netlify**: Serverless hosting platform
 - **Security Community**: Ongoing security research and improvements
-
-## 📞 Support
-
-- **Documentation**: [docs.8urn.me](https://docs.8urn.me)
-- **Security**: [security.8urn.me](https://security.8urn.me)
-- **Privacy**: [privacy.8urn.me](https://privacy.8urn.me)
-- **Issues**: [GitHub Issues](https://github.com/your-username/8urn.me/issues)
-
----
 
 **Remember**: 8urn.me is designed for maximum privacy and security. Your data is encrypted client-side and never stored in plaintext. However, always use strong passphrases and be mindful of what you share.
 
